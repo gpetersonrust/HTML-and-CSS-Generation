@@ -1,0 +1,17 @@
+{
+  "name": "HTML and CSS Generation",
+  "id": "1325559407862798631",
+  "api": "1.0.0",
+ 
+  "main": "dist/code/code.js",
+  "capabilities": [],
+  "enableProposedApi": false,
+  "editorType": [
+    "figma"
+  ],
+  "networkAccess": {
+    "allowedDomains": [
+      "none"
+    ]
+  }
+}
