@@ -1,9 +1,10 @@
 {
-  "name": "HTML and CSS Generation",
+  "name": "Moxcar Figma HTML and CSS Exporter",
   "id": "1325559407862798631",
   "api": "1.0.0",
  
   "main": "dist/code/code.js",
+  "ui":  "ui.html",
   "capabilities": [],
   "enableProposedApi": false,
   "editorType": [
@@ -14,4 +15,5 @@
       "none"
     ]
   }
+ 
 }

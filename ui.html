@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Figma Plugin UI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        #tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px;
+            cursor: pointer;
+            background-color: #ddd;
+            border: none;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+
+        .tab.active {
+            background-color: #4caf50;
+            color: #fff;
+        }
+
+        #codeContainer {
+            width: 80%;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            hyphens: auto;
+            overflow: scroll;
+        }
+    </style>
+</head>
+<body>
+    <div id="tabs">
+        <button id="htmlTab" class="tab active" onclick="showTab('htmlTab')">HTML</button>
+        <button id="cssTab" class="tab" onclick="showTab('cssTab')">CSS</button>
+    </div>
+
+    <div id="codeContainer">
+        <!-- Your generated HTML and CSS code will be displayed here -->
+        <pre id="htmlCode"></pre>
+        <pre  id="cssCode" style="display: none;"></pre>
+    </div>
+
+    <button id="copyButton" onclick="copyToClipboard()">Copy to Clipboard</button>
+
+    <script>
+    
+          
+ 
+       
+    
+        // Show the corresponding tab
+        function showTab(tabId) {
+  
+       
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+           
+
+            const codeContainers = document.querySelectorAll('pre');
+            codeContainers.forEach(container => container.style.display = 'none');
+            
+            const activeTab = document.getElementById(tabId);
+           
+             activeTab.classList.add('active');
+
+            const activeCodeContainer = document.getElementById(`${tabId.replace('Tab', 'Code')}`);
+            activeCodeContainer.style.display = 'block';
+        }
+
+        // Copy to Clipboard function
+        function copyToClipboard() {
+            const activeTabId = document.querySelector('.tab.active').id;
+            const codeContainer = document.getElementById(`${activeTabId.replace('Tab', 'Code')}`);
+            const range = document.createRange();
+            range.selectNode(codeContainer);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            document.execCommand('copy');
+            window.getSelection().removeAllRanges();
+
+            alert('Code copied to clipboard!');
+        }
+
+ 
+
+        // on message from the plugin code type cancel 
+        onmessage = (event) => {
+            if (event.data.pluginMessage.type === 'generation') {
+                let html = event.data.pluginMessage.html;
+                let css = event.data.pluginMessage.css;
+                // add the generated code to the HTML and CSS code containers
+                document.getElementById('htmlCode').textContent = html;
+                document.getElementById('cssCode').textContent = css;
+            }
+        }
+
+    </script>
+</body>
+</html>

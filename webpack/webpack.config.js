@@ -1,12 +1,12 @@
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const { MODE } = require('./library/constants/global');
+ 
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
  
 
 module.exports = {
-  mode: MODE,
+  mode: 'development',
   entry: {
  
     code: path.resolve(__dirname, 'src', 'code', 'js', 'code.js'),
