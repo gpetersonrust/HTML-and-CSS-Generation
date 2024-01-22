@@ -1,43 +1,70 @@
+import RemoveDuplicateHandler from "../utils/classes/duplicate_remove";
+
  
 
 class write_css_file {
     constructor(css_objects){
         this.css_objects = css_objects;
+        this.variant_classes = [];
+        this.variant_separator();
+        this.css_string = '';
         this.remove_duplicates();
-
-        this.css_string = this.css_string_constructor();
+        
+        
      
     }
 
     css_string_constructor() {
-        let css_string = '';
-        this.clean_css_objects.forEach((css_object) => {
-            let states = ['base', 'before', 'after', 'hover', 'focus'];
-            states.forEach((state) => {
-             
-    
-                let object = css_object[state];
-                // object_keys
-                let object_keys = Object.keys(object);
-                // if css_object or object_keys is empty or object keys = 0 return;
-                if (!css_object || !object_keys || object_keys.length === 0) return;
-                let add_id = css_object.modify_id ? `#${css_object.id}` : '';
-                   // css string with id and class name for specificity; if state is not base, add pseudo-class
-                   css_string += `${add_id} .${css_object.class_name}${state === 'base' ? '' : `:${state}`} { \n`;
-    
-                object_keys.forEach((key) => {
-                    let value = object[key];
-                    let skip_values = ['undefined', 'null', '', 'none', 'auto', '1', '1.00'];
-                    if ( value &&  skip_values.includes(value)) return;
-                    css_string += `${key}: ${value}; \n`;
-                });
-    
-                css_string += `} \n \n`;
-            });
-        });
-        return css_string;
-    
+      this.css_string += this.generateCssString(this.css_objects);
+      this.css_string += this.generateCssString(this.variant_classes, true);
+       return   this.css_string;
+ }
+
+    variant_separator() {
+    let variant_separation  =  this.css_objects.reduce((acc, css_object) => {
+        let classes = css_object.class_name.split(' ');
+        // if less than 2 classes, return
+        if(classes.length < 2) {
+            acc.regular_css.push(css_object);
+            return acc;
+        };
+        css_object.base_variant_class = classes[0];
        
+        if(acc.variants.length === 0){
+            css_object.variant_classes =  '';
+            console.log(css_object, 'first');
+            acc.variants.push(css_object);
+            return acc;
+        } else {
+            css_object.variant_classes = classes.slice(1).join(' ');
+        }
+        // let found = acc.find((css_object_in_acc) => css_object_in_acc.base_variant_class === css_object.base_variant_class);
+        let found = acc.variants.find((css_object_in_acc) => css_object_in_acc.base_variant_class === css_object.base_variant_class);
+        if(found) {
+         let clean_css = new RemoveDuplicateHandler(found, css_object);
+            let cleaned_css = clean_css.removeDuplicateStates();
+           acc.variants.push(cleaned_css);
+           return acc;
+
+        } else {
+            acc.variants.push(css_object);
+            return acc;
+        }
+
+   
+     }  , {
+        variants: [],
+        regular_css: []
+     });
+ 
+
+     const {variants, regular_css} = variant_separation;
+         this.variant_classes = variants;
+         this.css_objects = regular_css;
+       
+        return this;
+  
+
     }
 
 /**
@@ -60,8 +87,9 @@ remove_duplicates() {
  * Checks for duplicate CSS objects based on class_name and decides whether to add the current css_object.
  * @param {Object} css_object - The CSS object to check for duplicates.
  */
-removeDuplicateStates(css_object) {
+removeDuplicateStates(css_object,) {
     // Find a comparable object in the existing clean_css_objects array
+    //   css_object,
     let compareable_object = this.clean_css_objects.find((clean_css_object) => clean_css_object.class_name === css_object.class_name);
 
     // If a comparable object is found, remove duplicates and add the current css_object
@@ -109,8 +137,68 @@ removeDuplicateProperties(css_object, compareable_object) {
 
 
     
+ /**
+  * 
+  * @param {*} cssObject 
+  *  
+  */
+
+generateCssString(cssObjects, isVariant = false) {
+     let cssString = '';
+
+   const processClassName = (className)  => {
+        let multipleClassNames = className.split(' ');
+        // map and attach '.' to each class name
+        multipleClassNames = multipleClassNames.map((name) => `.${name}`);
+        // join the class names
+        return multipleClassNames.join('').replace('.default', '');
+    }
+
+    const process_variant_class = (cssObject) => { 
+
+        return cssObject.variant_classes ? `${processClassName(cssObject.base_variant_class)}${processClassName(cssObject.variant_classes)}` : processClassName(cssObject.base_variant_class);
+    }
  
 
+   const processPropertyValues = (key, value) =>  {
+        let skipValues = ['undefined', 'null', '', 'none', 'auto', '1', '1.00'];
+        return (value && !skipValues.includes(value)) ? `${key}: ${value}; \n` : '';
+    }
+
+     const generateStateCss = (cssObject,state) =>  {
+        let object = cssObject[state];
+        
+         
+        // object_keys
+        let objectKeys = Object.keys(object);
+        // if cssObject or objectKeys is empty or object keys = 0 return;
+        if (!cssObject || !objectKeys || objectKeys.length === 0) return '';
+
+        let addId = cssObject.modify_id ? `#${cssObject.id}` : '';
+        let processedClassName = isVariant ? process_variant_class(cssObject) : processClassName(cssObject.class_name);
+        // css string with id and class name for specificity; if state is not base, add pseudo-class
+        let stateCss = `${addId}${processedClassName}${state === 'base' ? '' : `:${state}`} { \n`;
+
+        objectKeys.forEach((key) => {
+            let value = object[key];
+            stateCss += processPropertyValues(key, value);
+        });
+
+        stateCss += `} \n \n`;
+        return stateCss;
+    }
+    
+    const processCssObject = (css_object) => {
+        let states = ['base', 'before', 'after', 'hover', 'focus'];
+    
+        states.forEach((state) => cssString += generateStateCss(css_object, state));
+    };
+
+
+    cssObjects.forEach((cssObject) => processCssObject(cssObject));
+  
+    return cssString;
+}
 
 }
 

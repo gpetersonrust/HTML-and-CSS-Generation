@@ -1,5 +1,6 @@
 export default class create_flex_size {
     constructor(node, css_to_be_processed) {
+      
         // layoutMode, name = "", primaryAxisAlignItems = "MIN", counterAxisAlignItems = "MIN", layoutWrap = "NONE"
         const { layoutMode, name, primaryAxisAlignItems, counterAxisAlignItems, layoutWrap, verticalPadding,horizontalPadding, itemSpacing,
             counterAxisSpacing

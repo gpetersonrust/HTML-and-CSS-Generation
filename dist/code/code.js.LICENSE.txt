@@ -16,6 +16,8 @@
 
 /*! ../node_manager */
 
+/*! ../utils/classes/duplicate_remove */
+
 /*! ../utils/colors/color_capacity_converter */
 
 /*! ./css_genereation */
@@ -51,6 +53,10 @@
 /*!*********************************************!*\
   !*** ./figma/generation/html_generation.js ***!
   \*********************************************/
+
+/*!*************************************************!*\
+  !*** ./figma/utils/classes/duplicate_remove.js ***!
+  \*************************************************/
 
 /*!********************************************************!*\
   !*** ./figma/Property Conversions/create_flex_size.js ***!

@@ -8,7 +8,7 @@ import utiltiy_style_creator from "../Property Conversions/utility_style_creator
  
  
 export default class CSS_Generation{
-    constructor(node, id, class_name){
+    constructor(node, id, class_name, tag){
         this.node = node;
         this.id = id;
         this.class_name = class_name;
@@ -28,6 +28,7 @@ export default class CSS_Generation{
         }
         this.layoutMode = node.layoutMode;
         this.isText = this.node.type === "TEXT";
+        this.tag = tag;
 
     
   
@@ -41,8 +42,8 @@ export default class CSS_Generation{
     css_creation(){
       let fill  = new create_fill_style(this.node, this.css_to_be_processed, this.isText).fillSelection();
       this.isText && new create_text_style(this.node, this.css_to_be_processed).createTextStyle();
-      if(!this.layoutMode == 'NONE')  new create_flex_size(this.node, this.css_to_be_processed).generate();
-        new create_size_style(this.node, this.css_to_be_processed, this.isText).generate();
+      if(this.layoutMode !== 'NONE' && this.layoutMode !== undefined && this.layoutMode !== null )  new create_flex_size(this.node, this.css_to_be_processed).generate();
+        new create_size_style(this.node, this.css_to_be_processed, this.isText, this.tag).generate();
         new utiltiy_style_creator(this.node, this.css_to_be_processed, this.isText).generate();
     }
 

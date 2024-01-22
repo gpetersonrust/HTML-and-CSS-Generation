@@ -28,10 +28,13 @@ export default class HTML_Generation {
      * 1. Constructor for HTML_Generation class.
      * @param {Object} node - The node used for HTML generation.
      */
-    constructor(node) {
+    constructor(node, responsive_design = false, max_screen_size = null, dyanmic_properties = null) {
         this.node = node;
-       
-      
+        this.responsive_design = responsive_design;
+        this.max_screen_size = max_screen_size;
+        this.dyanmic_properties = dyanmic_properties;
+        console.log(this.max_screen_size, this.dyanmic_properties,  this.node.name);
+       this.tag;
     }
 
     /**
@@ -42,9 +45,22 @@ export default class HTML_Generation {
         this.css_objects_to_string = css_objects_to_string;
         this.html = this.html_creation();
       
-       
+        //  console.log(this.continue_generation(), 'generate');
        
      return this.html;
+    }
+
+    continue_generation(){
+        let continue_generation = false;
+        if(!this.responsive_design )  
+        {
+            return true;
+        }
+
+
+     
+        this.dyanmic_properties == 'responsive'  || this.dyanmic_properties == this.max_screen_size  ? continue_generation = true : continue_generation = false;  
+        return continue_generation;
     }
 
     /**
@@ -53,23 +69,29 @@ export default class HTML_Generation {
     html_creation() {
        
         const { tag, id, variant_classes } = this.tag_handler(this.node.name);
-        this.css =  new CSS_Generation(this.node, this.id,  variant_classes);
-        this.css =  this.css.generate();
-       
-        this.css_objects_to_string.push(this.css);
-
+      
         const isText = this.isText(this.node);
         
         const indentation_spacing = this.indentation_spacing();
         let text = isText ? this.node.characters : '';
          const selfClosing = this.is_closed_html_elements_method(tag);
+         this.tag = tag;
+         this.css =  new CSS_Generation(this.node, this.id,  variant_classes, this.tag);
+         this.css =  this.css.generate();
+        
+         this.css_objects_to_string.push(this.css);
+         if(this.continue_generation()) {
+ 
         const closingTag = selfClosing ? '' : `</${ isText ? "span" : tag}>`;
         const closing_slash = selfClosing ? '/' : '';
          const children_html = this.convert_children_to_html(this.node.children);
          
 
 
-         return `\n${indentation_spacing}<${isText ? 'span' : tag} id="${id}" class="${variant_classes}"${closing_slash}>${text}${children_html}${ !isText ? indentation_spacing : ""}${ closingTag}`;
+         return `\n${indentation_spacing}<${isText ? 'span' : tag} id="${id}" class="${variant_classes}"${closing_slash}>${text}${children_html}${ !isText ? indentation_spacing : ""}${ closingTag}`; 
+         } else {
+                return '';
+         }
     }
 
     /**
@@ -78,7 +100,9 @@ export default class HTML_Generation {
      * @returns {Object} - An object containing tag, id, and variant_classes.
      */
     tag_handler(name) {
-        //  if name includes . then separate 
+    //    regex to remove from :[ to ]
+       let prop_regex =  /:\[.*?\]/g;
+         name = name.replace(prop_regex, ''); 
         let orginial_name = name;
         name = name.split('.')[0];
 
@@ -110,7 +134,7 @@ export default class HTML_Generation {
      * @returns {string} - A string containing variant classes.
      */
     get_variants() {
-        return this.node.variantProperties ? Object.keys(this.node.variantProperties).map((key) => `  ${this.node.variantProperties[key].toLowerCase().replace(" ", "-")}`).join("") : "";
+        return this.node.variantProperties ? Object.keys(this.node.variantProperties).map((key) => ` ${this.node.variantProperties[key].toLowerCase().replace(" ", "-")}`).join("") : "";
     }
 
     /**
